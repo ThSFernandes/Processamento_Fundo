@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
-public class teste {
+public class ProcessamentoImagens {
 
     private LinkedList<BufferedImage> imagens = new LinkedList<>();
     private BufferedImage imagemCombinadaNormal;
@@ -39,9 +39,10 @@ public class teste {
     private JButton botaoCarregarPessoa;
     private JButton botaoCarregarPaisagem;
     private JButton botaoCombinar;
+    private PainelImagem JpanelAtual;
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new teste().criarEExibirGUI());
+        SwingUtilities.invokeLater(() -> new ProcessamentoImagens().criarEExibirGUI());
     }
 
     private void criarEExibirGUI() {
@@ -233,7 +234,7 @@ public class teste {
         int altura = imagem.getHeight();
 
         BufferedImage mascara = new BufferedImage(largura, altura, BufferedImage.TYPE_BYTE_BINARY);
-
+        //Remoção de bits menos significativos
         for (int y = 0; y < altura; y++) {
             for (int x = 0; x < largura; x++) {
                 int corPixel = imagem.getRGB(x, y);
@@ -282,7 +283,7 @@ public class teste {
             for (int x = 0; x < largura; x++) {
                 int corImagem1 = imagem1.getRGB(x, y);
                 int corImagem2 = imagem2.getRGB(x, y);
-
+                   //checar somente primeiro Byte de transparência
                 if ((corImagem1 & 0xFF000000) == 0) {
                     imagemCombinada.setRGB(x, y, corImagem2);
                 } else {
@@ -316,18 +317,7 @@ public class teste {
     }
 
     private void aplicarZoom(double fator) {
-        painelImagemPessoa.aplicarZoom(fator);
-        painelImagemPaisagem.aplicarZoom(fator);
-        painelImagemCombinadaNormal.aplicarZoom(fator);
-        painelImagemCombinadaDesfocada.aplicarZoom(fator);
-        painelImagemPessoa.revalidate();
-        painelImagemPessoa.repaint();
-        painelImagemPaisagem.revalidate();
-        painelImagemPaisagem.repaint();
-        painelImagemCombinadaNormal.revalidate();
-        painelImagemCombinadaNormal.repaint();
-        painelImagemCombinadaDesfocada.revalidate();
-        painelImagemCombinadaDesfocada.repaint();
+        JpanelAtual.aplicarZoom(fator);
     }
 
     class PainelImagem extends JPanel {
@@ -338,7 +328,28 @@ public class teste {
             setPreferredSize(new Dimension(600, 400)); // Tamanho inicial do painel
             setBackground(Color.WHITE);
             setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
+            PainelImagem esteJPanel = this;
+            addMouseListener(new MouseListener() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    JpanelAtual=esteJPanel;
+                }
+                
+                @Override
+                public void mousePressed(MouseEvent e) {}
+
+                @Override
+                public void mouseReleased(MouseEvent e) {}
+
+                @Override
+                public void mouseEntered(MouseEvent e) {}
+
+                @Override
+                public void mouseExited(MouseEvent e) {}
+            });
         }
+        
+         
 
         public void setImagem(BufferedImage imagem) {
             this.imagem = imagem;
